@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Notificaciones{% endblock %}
+
+{% block content %}
+  <h1>Notificaciones</h1>
+
+  {% if notifications %}
+    {% for notification in notifications %}
+      <div class="card">
+        <p><strong>{{ notification.user.username }}</strong></p>
+        <p>{{ notification.message }}</p>
+        <p class="meta">{{ notification.created_at }} · {% if notification.is_read %}Leída{% else %}No leída{% endif %}</p>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="card">
+      <p>No tienes notificaciones.</p>
+    </div>
+  {% endif %}
+{% endblock %}

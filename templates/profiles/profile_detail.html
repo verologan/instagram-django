@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Perfil{% endblock %}
+
+{% block content %}
+  <div class="card profile-card">
+    <div class="profile-header">
+      <div class="avatar">
+        {% if profile and profile.profile_picture %}
+          <img src="{{ profile.profile_picture.url }}" alt="Avatar" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover;" />
+        {% else %}
+          {{ user.username|slice:':1'|upper }}
+        {% endif %}
+      </div>
+
+      <div class="profile-info">
+        <div class="profile-top-row">
+          <h1>{{ user.username }}</h1>
+
+          {% if is_owner %}
+            <a href="/usuarios/editar/" class="btn secondary">Editar perfil</a>
+          {% elif user.is_authenticated %}
+            <form method="post" action="{% url 'toggle_follow' user.username %}">
+              {% csrf_token %}
+              <button type="submit" class="btn {% if is_following %}secondary{% else %}primary{% endif %}">
+                {% if is_following %}Siguiendo{% else %}Seguir{% endif %}
+              </button>
+            </form>
+          {% else %}
+            <a href="/accounts/login/" class="btn secondary">Inicia sesión</a>
+          {% endif %}
+        </div>
+
+        <div class="stats">
+          <div><strong>{{ posts.count }}</strong> publicaciones</div>
+          <div><strong>{{ followers_count }}</strong> seguidores</div>
+          <div><strong>{{ following_count }}</strong> siguiendo</div>
+        </div>
+
+        {% if profile %}
+          <p class="bio"><strong>Biografía:</strong> {{ profile.bio|default:'Sin biografía todavía.' }}</p>
+          <p class="meta"><strong>Fecha de nacimiento:</strong> {{ profile.birth_date|default:'No indicada' }}</p>
+        {% else %}
+          <p>Este usuario todavía no tiene perfil.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="grid">
+      {% for post in posts %}
+        <div class="mini-post">
+          {% if post.image %}
+            <a href="{% url 'post_detail' post.id %}"><img src="{{ post.image.url }}" alt="Publicación" /></a>
+          {% endif %}
+        </div>
+      {% empty %}
+        <div class="card empty-state" style="grid-column: 1 / -1; margin-bottom: 0;">
+          <p>No hay publicaciones todavía.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}

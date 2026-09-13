@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalle del post{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <div class="post-header">
+      <a href="/usuarios/{{ post.author.username }}/" class="username">{{ post.author.username }}</a>
+      <span class="meta">{{ post.created_at|date:"d M Y, H:i" }}</span>
+    </div>
+
+    {% if post.image %}
+      <img class="post-image" src="{{ post.image.url }}" alt="Post" />
+    {% endif %}
+
+    <p class="caption"><strong>{{ post.author.username }}</strong> {{ post.caption }}</p>
+
+    <div class="actions">
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'toggle_like' post.id %}">
+          {% csrf_token %}
+          <button type="submit" class="btn {% if post.user_has_liked %}secondary{% else %}primary{% endif %}">
+            {% if post.user_has_liked %}Quitar like{% else %}Me gusta{% endif %}
+          </button>
+        </form>
+      {% else %}
+        <a class="btn secondary" href="/accounts/login/">Inicia sesión para dar like</a>
+      {% endif %}
+    </div>
+
+    <p class="meta">{{ post.likes.count }} likes · {{ post.comments.count }} comentarios</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top: 0;">Comentarios</h3>
+
+    {% for comment in post.comments.all %}
+      <p><strong>{{ comment.author.username }}</strong>: {{ comment.text }}</p>
+    {% empty %}
+      <p class="meta">No hay comentarios todavía.</p>
+    {% endfor %}
+
+    {% if user.is_authenticated %}
+      <form method="post" action="{% url 'add_comment' post.id %}">
+        {% csrf_token %}
+        <textarea name="text" placeholder="Escribe un comentario..."></textarea>
+        <button type="submit" class="btn primary" style="margin-top: 12px;">Publicar comentario</button>
+      </form>
+    {% else %}
+      <p class="meta">Inicia sesión para comentar.</p>
+    {% endif %}
+  </div>
+{% endblock %}
